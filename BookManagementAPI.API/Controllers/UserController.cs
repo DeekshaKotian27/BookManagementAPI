@@ -1,5 +1,6 @@
 ﻿using BookManagementAPI.Application.DTOs;
 using BookManagementAPI.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,8 +30,8 @@ namespace BookManagementAPI.API.Controllers
             }
             return BadRequest();
         }
-        [HttpPost("{validate}")]
-        public async Task<IActionResult> Validate(UsersDTO usersDTO)
+        [HttpPost("validate")]
+        public async Task<IActionResult> Validate([FromBody]UsersDTO usersDTO)
         {
             if (usersDTO == null)
             {
