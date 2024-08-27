@@ -1,6 +1,12 @@
-﻿using BookManagementAPI.Application.DTOs;
+﻿using BookManagementAPI.API.Helpers;
+using BookManagementAPI.Application.DTOs;
 using BookManagementAPI.Application.Services;
+using BookManagementAPI.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace BookManagementAPI.API.Controllers
 {
@@ -9,9 +15,11 @@ namespace BookManagementAPI.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-        public UserController(IUserService userService)
+        private readonly IConfiguration _configuration;
+        public UserController(IUserService userService,IConfiguration configuration)
         {
             _userService = userService;
+            _configuration = configuration;
         }
 
         [HttpPost]
@@ -38,9 +46,12 @@ namespace BookManagementAPI.API.Controllers
             var data = await _userService.Validate(usersDTO.EmailID);
             if (data != null)
             {
-                return Ok(data);
+                var jwtSettings = _configuration.GetSection("JWT");
+                var token = TokenGenerator.GetToken(data, jwtSettings);
+                return Ok(new {Data=data,Token=token});
             }
             return Unauthorized();
         }
+        
     }
 }

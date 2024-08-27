@@ -3,8 +3,11 @@ using BookManagementAPI.Application.Services;
 using BookManagementAPI.Domain.Interface;
 using BookManagementAPI.Infrastructure.Data;
 using BookManagementAPI.Infrastructure.Repository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +25,16 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
 
+    // JWT Authentication
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+    });
+
     // Add API Key Authorization
     c.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
     {
@@ -33,19 +46,53 @@ builder.Services.AddSwaggerGen(c =>
     });
 
     c.AddSecurityRequirement(new OpenApiSecurityRequirement{
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
                 {
-                    new OpenApiSecurityScheme{
-                        Reference = new OpenApiReference{
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "ApiKey"
-                        }
-                    },
-                    new string[]{}
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
                 }
-            });
+            },
+            new string[] {}
+        },
+        {
+            new OpenApiSecurityScheme{
+              Reference = new OpenApiReference{
+                   Type = ReferenceType.SecurityScheme,
+                   Id = "ApiKey"
+              }
+            },
+            new string[]{}
+          }
+        });
 });
 
 builder.Services.AddDbContext<AuthorDBContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("BooksDB")));
+
+//getting data from appsettings
+var jwtSettings= builder.Configuration.GetSection("JWT");
+//Adding JWT Authentication
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(x =>
+{
+    x.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateIssuerSigningKey = true,//validates the issuer signin key
+        IssuerSigningKey=new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"])),
+        ValidateIssuer=true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidateAudience = true,
+        ValidAudience = jwtSettings["Audience"],
+        ValidateLifetime=true,//Specifies whether the token's lifetime should be validated. 
+        ClockSkew = TimeSpan.Zero,
+    };
+});
 
 //add services to the container
 builder.Services.AddScoped<IAuthorService, AuthorService>();
@@ -75,18 +122,20 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseCors("AllowOrigins");
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseMiddleware<ApiKeyAuthMiddleware>();
 
 app.UseAuthorization();
 
+app.UseCors("AllowOrigins");
 app.MapControllers();
+
 
 app.Run();
