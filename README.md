@@ -53,4 +53,4 @@ Each of these entities can be managed independently, with relationships handled 
 Relationships like Book-Author, Book-Publisher, and Book-Category are managed with options for cascading deletes or setting foreign keys to null on deletion.
 
 - Authorization and Authentication:
-The project includes simple login mechanisms, ensuring secure access to the API.
+The project includes simple login mechanisms, ensuring secure access to the API using API key authentication and JWT Bearer Authentication.
