@@ -22,6 +22,10 @@ namespace BookManagementAPI.API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var authors = await _authorService.GetAllAsync();
+            if (authors == null)
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
             return Ok(authors);
         }
         [HttpGet("{id}")]
@@ -42,13 +46,16 @@ namespace BookManagementAPI.API.Controllers
             {
                 return BadRequest();
             }
-            var author = new Author
+            var data = await _authorService.CreateAsync(authorDTO);
+            if (data == -2)
             {
-                FirstName = authorDTO.FirstName,
-                LastName = authorDTO.LastName,
-            };
-            var createBlog = await _authorService.CreateAsync(author);
-            return CreatedAtAction(nameof(GetById), new { id = createBlog.AuthorId }, createBlog);
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+            if (data == -1)
+            {
+                return Conflict("The resource already exists.");
+            }
+            return StatusCode(201, "Author created successfully");
         }
 
         [HttpPut("{id}")]
@@ -58,31 +65,34 @@ namespace BookManagementAPI.API.Controllers
             {
                 return BadRequest();
             }
-            var author = new Author
+            var authorData = await _authorService.UpdateAsync(id, authorDTO);
+            if (authorData == -1)
             {
-                FirstName = authorDTO.FirstName,
-                LastName = authorDTO.LastName,
-            };
-            var authorData = await _authorService.UpdateAsync(id, author);
-            if (authorData != -1)
-            {
-                return Ok("updated succesfully {authorData}");
+                return NotFound("The requested resource was not found.");
             }
-            else
+            else if(authorData == -2)
             {
-                return BadRequest();
+                return StatusCode(500, "An error occurred while processing your request.");
             }
+            return Ok("updated succesfully");
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id) 
         {
             var author= await _authorService.DeleteAsync(id);
-            if (author != -1)
+            if (author == 1)
             {
-                return Ok("deleted succesfully {authorData}");
+                return Ok("deleted succesfully");
             }
-            else { return BadRequest(); }
+            else if (author == -1)
+            {
+                return NotFound("The requested resource was not found.");
+            }
+            else
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
     }
 }

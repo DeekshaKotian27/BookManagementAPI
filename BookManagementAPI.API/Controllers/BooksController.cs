@@ -22,6 +22,10 @@ namespace BookManagementAPI.API.Controllers
         public async Task<IActionResult> GetBooks() 
         {
             var books= await _bookService.GetBooksAsync();
+            if (books == null)
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
             return Ok(books);
         }
 
@@ -34,15 +38,15 @@ namespace BookManagementAPI.API.Controllers
             }
             else
             {
-                var books = new Books
+                var book = await _bookService.CreateBooksAsync(booksDTO);
+                if (book == -1) {
+                    return Conflict("The resource already exists.");
+                }
+                if (book == -2) 
                 {
-                    AuthorId = booksDTO.AuthorId,
-                    Title = booksDTO.Title,
-                    PublisherId = booksDTO.PublisherId,
-                    CategoryID=booksDTO.CategoryId,
-                };
-                var book = await _bookService.CreateBooksAsync(books);
-                return Ok(book);
+                    return StatusCode(500, "An error occurred while processing your request.");
+                }
+                return StatusCode(201, "Book created successfully");
             }
         }
 
@@ -51,7 +55,7 @@ namespace BookManagementAPI.API.Controllers
         {
             var book=await _bookService.GetBookByIdAsync(id);
             if(book == null){
-                return BadRequest();
+                return NotFound($"There is no data with ID {id}");
             }
             return Ok(book);
         }
@@ -63,26 +67,36 @@ namespace BookManagementAPI.API.Controllers
             {
                 return BadRequest();
             }
-            var book = new Books
+            var updatebook = await _bookService.UpdateBooksAsync(id, booksDTO);
+            if (updatebook == 1)
             {
-                Title = booksDTO.Title,
-                AuthorId = booksDTO.AuthorId,
-                PublisherId = booksDTO.PublisherId,
-                CategoryID = booksDTO.CategoryId,
-            };
-            var updatebook = await _bookService.UpdateBooksAsync(id, book);
-            return Ok(updatebook);
+                return Ok();
+            }
+            else if (updatebook == -1)
+            {
+                return NotFound("The requested resource was not found.");
+            }
+            else {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBook(int id)
         {
             var data = await _bookService.DeleteBooksAsync(id);
-            if(data != -1)
+            if(data == 1)
             {
                 return Ok("deleted succesfully book");
             }
-            else { return BadRequest(); }
+            else if(data==-1) 
+            { 
+                return NotFound("The requested resource was not found."); 
+            }
+            else 
+            { 
+                return StatusCode(500, "An error occurred while processing your request."); 
+            }
         }
     }
 }

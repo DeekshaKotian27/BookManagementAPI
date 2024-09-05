@@ -16,8 +16,15 @@ namespace BookManagementAPI.Application.Services
         {
             _bookRepository = bookRepository;
         }
-        public async Task<Books> CreateBooksAsync(Books book)
+        public async Task<int> CreateBooksAsync(BooksDTO booksDTO)
         {
+            var book = new Books
+            {
+                AuthorId = booksDTO.AuthorId,
+                Title = booksDTO.Title,
+                PublisherId = booksDTO.PublisherId,
+                CategoryID = booksDTO.CategoryId,
+            };
             return await _bookRepository.CreateBooksAsync(book);
         }
 
@@ -26,14 +33,14 @@ namespace BookManagementAPI.Application.Services
             return await _bookRepository.DeleteBooksAsync(id);
         }
 
-        public async Task<ResponseBooksDTO> GetBookByIdAsync(int id)
+        public async Task<ResponseBooksDTO?> GetBookByIdAsync(int id)
         {
             var bookByID = await _bookRepository.GetBookByIdAsync(id);
             if (bookByID == null)
             {
                 return null;
             }
-            ResponseBooksDTO data = GetBookData(bookByID);
+            var data = GetBookData(bookByID);
             return data;
         }
 
@@ -76,8 +83,15 @@ namespace BookManagementAPI.Application.Services
             return books;
         }
 
-        public async Task<Books> UpdateBooksAsync(int id, Books book)
+        public async Task<int> UpdateBooksAsync(int id, BooksDTO booksDTO)
         {
+            var book = new Books
+            {
+                Title = booksDTO.Title,
+                AuthorId = booksDTO.AuthorId,
+                PublisherId = booksDTO.PublisherId,
+                CategoryID = booksDTO.CategoryId,
+            };
             return await _bookRepository.UpdateBooksAsync(id, book);
         }
     }

@@ -7,9 +7,9 @@ namespace BookManagementAPI.Application.Services
     {
 
         Task<List<ResponseBooksDTO>> GetBooksAsync();
-        Task<ResponseBooksDTO> GetBookByIdAsync(int id);
-        Task<Books> CreateBooksAsync(Books book);
-        Task<Books> UpdateBooksAsync(int id,Books book);
+        Task<ResponseBooksDTO?> GetBookByIdAsync(int id);
+        Task<int> CreateBooksAsync(BooksDTO book);
+        Task<int> UpdateBooksAsync(int id,BooksDTO book);
         Task<int> DeleteBooksAsync(int id);
     }
 }

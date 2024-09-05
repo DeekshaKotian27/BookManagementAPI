@@ -21,7 +21,7 @@ namespace BookManagementAPI.API.Helpers
                     new Claim(ClaimTypes.Name,userData.UserName),
                     new Claim(ClaimTypes.Email,userData.EmailID)
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(10),
+                Expires = DateTime.UtcNow.AddMinutes(100),
                 Audience = jwtSettings["Audience"],
                 Issuer = jwtSettings["Issuer"],
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

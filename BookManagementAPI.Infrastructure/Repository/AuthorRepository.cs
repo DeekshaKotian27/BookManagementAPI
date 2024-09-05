@@ -12,11 +12,20 @@ namespace BookManagementAPI.Infrastructure.Repository
         {
             _authorDbContext = authorDBContext;
         }
-        public async Task<Author> CreateAsync(Author author)
+        public async Task<int> CreateAsync(Author author)
         {
+            var duplicateData=await _authorDbContext.Authors.SingleOrDefaultAsync(a => a.FirstName==author.FirstName);
+            if (duplicateData != null) 
+            {
+                return -1;
+            }
             await _authorDbContext.Authors.AddAsync(author);
-            await _authorDbContext.SaveChangesAsync();
-            return author;
+            var result=await _authorDbContext.SaveChangesAsync();
+            if (result > 0) 
+            {
+                return 1;
+            }
+            return -2;
         }
 
         public async Task<int> DeleteAsync(int id)
@@ -25,7 +34,9 @@ namespace BookManagementAPI.Infrastructure.Repository
             if (author != null)
             {
                 _authorDbContext.Authors.Remove(author);
-                return await _authorDbContext.SaveChangesAsync();
+                var result= await _authorDbContext.SaveChangesAsync();
+                if (result > 0) { return 1; }
+                else { return -2; }
             }
             return -1;
         }
@@ -38,7 +49,7 @@ namespace BookManagementAPI.Infrastructure.Repository
                 .ToListAsync();
         }
 
-        public async Task<Author> GetByIdAsync(int id)
+        public async Task<Author?> GetByIdAsync(int id)
         {
             var author = await _authorDbContext.Authors
                         .Include(a => a.Books).ThenInclude(b => b.Publisher)
@@ -46,7 +57,7 @@ namespace BookManagementAPI.Infrastructure.Repository
                         .FirstOrDefaultAsync(a => a.AuthorId == id);
             if(author == null)
             {
-                throw new Exception();
+                return null;
             }
             return author;
         }
@@ -54,15 +65,19 @@ namespace BookManagementAPI.Infrastructure.Repository
         public async Task<int> UpdateAsync(int id, Author author)
         {
             var authorData = await _authorDbContext.Authors.FindAsync(id);
-            if(authorData != null)
+            if(authorData == null)
             {
-                authorData.FirstName = author.FirstName;
-                authorData.LastName=author.LastName;
-                _authorDbContext.Authors.Update(authorData);
-                await _authorDbContext.SaveChangesAsync();
-                return authorData.AuthorId;
+                return -1;
             }
-            return -1;
+            authorData.FirstName = author.FirstName;
+            authorData.LastName=author.LastName;
+            _authorDbContext.Authors.Update(authorData);
+            var result=await _authorDbContext.SaveChangesAsync();
+            if (result > 0)
+            {
+                return 1;
+            }
+            return -2;
         }
     }
 }

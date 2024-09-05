@@ -12,11 +12,17 @@ namespace BookManagementAPI.Infrastructure.Repository
         {
             _authorDBContext = authorDBContext;
         }
-        public async Task<Publisher> CreatePublisher(Publisher publisher)
+        public async Task<int> CreatePublisher(Publisher publisher)
         {
+            var duplicateData= await _authorDBContext.Publisher.SingleOrDefaultAsync(p=>p.PublisherEmailId == publisher.PublisherEmailId);
+            if (duplicateData != null)
+            {
+                return -1;
+            }
             await _authorDBContext.Publisher.AddAsync(publisher);
-            await _authorDBContext.SaveChangesAsync();
-            return publisher;
+            var result=await _authorDBContext.SaveChangesAsync();
+            if (result > 0) { return 1; }
+            return -2;
         }
 
         public async Task<int> DeletePublisher(int id)
@@ -25,7 +31,9 @@ namespace BookManagementAPI.Infrastructure.Repository
             if(data != null)
             {
                 _authorDBContext.Publisher.Remove(data);
-                return await _authorDBContext.SaveChangesAsync();
+                var result= await _authorDBContext.SaveChangesAsync();
+                if (result > 0) { return 1; }
+                return -2;
             }
             return -1;
         }
@@ -38,7 +46,7 @@ namespace BookManagementAPI.Infrastructure.Repository
                 .ToListAsync();
         }
 
-        public async Task<Publisher> GetPublisherById(int id)
+        public async Task<Publisher?> GetPublisherById(int id)
         {
             var publisher = await _authorDBContext.Publisher
                 .Include(b => b.Books).ThenInclude(a => a.Author)
@@ -47,20 +55,21 @@ namespace BookManagementAPI.Infrastructure.Repository
             return publisher;
         }
 
-        public async Task<Publisher> UpdatePublisher(int id, Publisher publisher)
+        public async Task<int> UpdatePublisher(int id, Publisher publisher)
         {
             var publisherData = await _authorDBContext.Publisher.FindAsync(id);
             if (publisherData == null)
             {
-                return null;
+                return -1;
             }
             publisherData.PublisherName = publisher.PublisherName;
             publisherData.PublisherPhoneNumber= publisher.PublisherPhoneNumber;
             publisherData.PublisherAddress = publisher.PublisherAddress;
             publisherData.PublisherEmailId= publisher.PublisherEmailId;
             _authorDBContext.Publisher.Update(publisherData);
-            await _authorDBContext.SaveChangesAsync();
-            return publisherData;
+            var result = await _authorDBContext.SaveChangesAsync();
+            if (result > 0) { return 1; }
+            return -2;
         }
     }
 }
