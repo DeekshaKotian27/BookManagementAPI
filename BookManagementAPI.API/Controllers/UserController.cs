@@ -39,18 +39,25 @@ namespace BookManagementAPI.API.Controllers
         [HttpPost("validate")]
         public async Task<IActionResult> Validate([FromBody]UsersDTO usersDTO)
         {
-            if (usersDTO == null)
+            if (usersDTO == null || string.IsNullOrWhiteSpace(usersDTO.EmailID) || string.IsNullOrWhiteSpace(usersDTO.Password)) 
             {
                 return BadRequest();
             }
             var data = await _userService.Validate(usersDTO.EmailID);
             if (data != null)
             {
+                if (data.Password == usersDTO.Password)
+                {
                 var jwtSettings = _configuration.GetSection("JWT");
                 var token = TokenGenerator.GetToken(data, jwtSettings);
                 return Ok(new {Data=data,Token=token});
+                }
+                else
+                {
+                    return StatusCode(403, new { Message = "Incorrect password." });
+                }
             }
-            return Unauthorized();
+            return Unauthorized("UserID is not registered");
         }
         
     }

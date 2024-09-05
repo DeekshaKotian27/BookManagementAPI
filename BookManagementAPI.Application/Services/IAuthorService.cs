@@ -11,9 +11,9 @@ namespace BookManagementAPI.Application.Services
     public interface IAuthorService
     {
         Task<List<ResponseAuthorDTO>> GetAllAsync();
-        Task<ResponseAuthorDTO> GetByIdAsync(int id);
-        Task<Author> CreateAsync(Author author);
-        Task<int> UpdateAsync(int id, Author author);
+        Task<ResponseAuthorDTO?> GetByIdAsync(int id);
+        Task<int> CreateAsync(AuthorDTO author);
+        Task<int> UpdateAsync(int id, AuthorDTO author);
         Task<int> DeleteAsync(int id);
     }
 }

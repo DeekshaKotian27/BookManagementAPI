@@ -13,11 +13,19 @@ namespace BookManagementAPI.Infrastructure.Repository
         {
             _authorDBContext = authorDBContext;
         }
-        public async Task<Category> CreateCategory(Category category)
+        public async Task<int> CreateCategory(Category category)
         {
+            var dulpicateData= await _authorDBContext.Category.SingleOrDefaultAsync(c=>c.Name == category.Name);
+            if (dulpicateData != null)
+            {
+                return -1;
+            }
             await _authorDBContext.Category.AddAsync(category); 
-            await _authorDBContext.SaveChangesAsync();
-            return category;
+            var result=await _authorDBContext.SaveChangesAsync();
+            if (result > 0) {
+                return 1;
+            }
+            return -2;
         }
 
         public async Task<int> DeleteCategory(int id)
@@ -26,7 +34,9 @@ namespace BookManagementAPI.Infrastructure.Repository
             if (data != null)
             {
                 _authorDBContext.Category.Remove(data);
-                return await _authorDBContext.SaveChangesAsync();
+                var result= await _authorDBContext.SaveChangesAsync();
+                if(result > 0) { return 1; }
+                return -2;
             }
             return -1;
         }
@@ -39,7 +49,7 @@ namespace BookManagementAPI.Infrastructure.Repository
                 .ToListAsync();
         }
 
-        public async Task<Category> GetCategoryById(int id)
+        public async Task<Category?> GetCategoryById(int id)
         {
             var category = await _authorDBContext.Category
                 .Include(b => b.Books).ThenInclude(a => a.Author)
@@ -48,17 +58,21 @@ namespace BookManagementAPI.Infrastructure.Repository
             return category;
         }
 
-        public async Task<Category> UpdateCategory(int id, Category category)
+        public async Task<int> UpdateCategory(int id, Category category)
         {
             var categoryData= await _authorDBContext.Category.FindAsync(id);
             if (categoryData == null)
             {
-                return null;
+                return -1;
             }
             categoryData.Name = category.Name;
             _authorDBContext.Category.Update(categoryData);
-            await _authorDBContext.SaveChangesAsync();
-            return categoryData;
+            var result=await _authorDBContext.SaveChangesAsync();
+            if (result > 0)
+            {
+                return 1;
+            }
+            return -2;
         }
     }
 }

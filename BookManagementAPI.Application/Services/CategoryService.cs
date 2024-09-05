@@ -16,8 +16,12 @@ namespace BookManagementAPI.Application.Services
         {
             _categoryRepository = categoryRepository;
         }
-        public async Task<Category> CreateCategory(Category category)
+        public async Task<int> CreateCategory(CategoryDTO categoryDTO)
         {
+            var category = new Category()
+            {
+                Name = categoryDTO.CategoryName,
+            };
             return await _categoryRepository.CreateCategory(category);
         }
 
@@ -56,7 +60,7 @@ namespace BookManagementAPI.Application.Services
             return categories;
         }
 
-        public async Task<ResponseMultipleCategoryDTO> GetCategoryById(int id)
+        public async Task<ResponseMultipleCategoryDTO?> GetCategoryById(int id)
         {
             var getCategoryDataByID= await _categoryRepository.GetCategoryById(id);
             if(getCategoryDataByID == null)
@@ -67,8 +71,12 @@ namespace BookManagementAPI.Application.Services
             return data;
         }
 
-        public async Task<Category> UpdateCategory(int id, Category category)
+        public async Task<int> UpdateCategory(int id, CategoryDTO categoryDTO)
         {
+            var category = new Category()
+            {
+                Name = categoryDTO.CategoryName,
+            };
             return await _categoryRepository.UpdateCategory(id, category);
         }
 

@@ -11,9 +11,9 @@ namespace BookManagementAPI.Application.Services
     public interface ICategoryService
     {
         Task<List<ResponseMultipleCategoryDTO>> GetAllCategories();
-        Task<ResponseMultipleCategoryDTO> GetCategoryById(int id); 
-        Task<Category> CreateCategory(Category category);
-        Task<Category> UpdateCategory(int id, Category category);
+        Task<ResponseMultipleCategoryDTO?> GetCategoryById(int id); 
+        Task<int> CreateCategory(CategoryDTO category);
+        Task<int> UpdateCategory(int id, CategoryDTO category);
         Task<int> DeleteCategory(int id);
     }
 }

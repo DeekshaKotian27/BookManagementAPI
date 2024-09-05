@@ -4,6 +4,7 @@ using BookManagementAPI.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace BookManagementAPI.API.Controllers
 {
@@ -22,6 +23,10 @@ namespace BookManagementAPI.API.Controllers
         public async Task<IActionResult> GetAllAsync()
         {
             var publisher= await _publisherService.GetAllAsync();
+            if (publisher == null)
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
             return Ok(publisher);
         }
 
@@ -29,9 +34,9 @@ namespace BookManagementAPI.API.Controllers
         public async Task<IActionResult> GetByIDAsync(int id)
         {
             var publisher=await _publisherService.GetPublisherById(id);
-            if(publisher==null)
+            if (publisher == null)
             {
-                return BadRequest();
+                return NotFound($"There is no data with ID {id}");
             }
             return Ok(publisher);
         }
@@ -43,15 +48,16 @@ namespace BookManagementAPI.API.Controllers
             {
                 return BadRequest();
             }
-            var publisherData = new Publisher()
+            var publisher = await _publisherService.CreatePublisher(publisherDTO);
+            if (publisher == -1)
             {
-                PublisherName = publisherDTO.PublisherName,
-                PublisherAddress = publisherDTO.PublisherAddress,
-                PublisherEmailId = publisherDTO.PublisherEmailId,
-                PublisherPhoneNumber = publisherDTO.PublisherPhoneNumber,
-            };
-            var publisher = await _publisherService.CreatePublisher(publisherData);
-            return Ok(publisher);
+                return Conflict("The resource already exists.");
+            }
+            if (publisher == -2)
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+            return StatusCode(201, "Publisher created successfully");
         }
 
         [HttpPut("{id}")]
@@ -60,27 +66,38 @@ namespace BookManagementAPI.API.Controllers
             if (publisherDTO == null)
             {
                 return BadRequest();
-            }
-            var publisherData = new Publisher()
+            }           
+            var publisher = await _publisherService.UpdatePublisher(id,publisherDTO);
+            if (publisher == 1)
             {
-                PublisherName = publisherDTO.PublisherName,
-                PublisherAddress = publisherDTO.PublisherAddress,
-                PublisherEmailId = publisherDTO.PublisherEmailId,
-                PublisherPhoneNumber = publisherDTO.PublisherPhoneNumber,
-            };
-            var publisher = await _publisherService.UpdatePublisher(id,publisherData);
-            return Ok(publisher);
+                return Ok();
+            }
+            else if (publisher == -1)
+            {
+                return NotFound("The requested resource was not found.");
+            }
+            else
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePublisher(int id)
         {
             var data=await _publisherService.DeletePublisher(id);
-            if (data != -1)
+            if (data == 1)
             {
-                return Ok("Sucessfullt deleted publisher");
+                return Ok("deleted succesfully book");
             }
-            return BadRequest();
+            else if (data == -1)
+            {
+                return NotFound("The requested resource was not found.");
+            }
+            else
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
     }
 }

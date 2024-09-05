@@ -128,14 +128,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors("AllowOrigins");
+
 app.UseHttpsRedirection();
+
 app.UseAuthentication();
 app.UseMiddleware<ApiKeyAuthMiddleware>();
-
 app.UseAuthorization();
 
-app.UseCors("AllowOrigins");
 app.MapControllers();
-
 
 app.Run();

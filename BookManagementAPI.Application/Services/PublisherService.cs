@@ -16,9 +16,16 @@ namespace BookManagementAPI.Application.Services
         {
             _publisherRepository = publisherRepository;
         }
-        public async Task<Publisher> CreatePublisher(Publisher publisher)
+        public async Task<int> CreatePublisher(PublisherDTO publisherDTO)
         {
-            return await _publisherRepository.CreatePublisher(publisher);   
+            var publisherData = new Publisher()
+            {
+                PublisherName = publisherDTO.PublisherName,
+                PublisherAddress = publisherDTO.PublisherAddress,
+                PublisherEmailId = publisherDTO.PublisherEmailId,
+                PublisherPhoneNumber = publisherDTO.PublisherPhoneNumber,
+            };
+            return await _publisherRepository.CreatePublisher(publisherData);   
         }
 
         public async Task<List<ResponseMultiplePublisherDTO>> GetAllAsync()
@@ -60,7 +67,7 @@ namespace BookManagementAPI.Application.Services
             return publisherData;
         }
 
-        public async Task<ResponseMultiplePublisherDTO> GetPublisherById(int id)
+        public async Task<ResponseMultiplePublisherDTO?> GetPublisherById(int id)
         {
             var getPublisherByID= await _publisherRepository.GetPublisherById(id);
             if (getPublisherByID == null)
@@ -71,9 +78,16 @@ namespace BookManagementAPI.Application.Services
             return publisherData;
         }
 
-        public async Task<Publisher> UpdatePublisher(int id, Publisher publisher)
+        public async Task<int> UpdatePublisher(int id, PublisherDTO publisherDTO)
         {
-            return await _publisherRepository.UpdatePublisher(id, publisher);
+            var publisherData = new Publisher()
+            {
+                PublisherName = publisherDTO.PublisherName,
+                PublisherAddress = publisherDTO.PublisherAddress,
+                PublisherEmailId = publisherDTO.PublisherEmailId,
+                PublisherPhoneNumber = publisherDTO.PublisherPhoneNumber,
+            };
+            return await _publisherRepository.UpdatePublisher(id, publisherData);
         }
 
         public Task<int> DeletePublisher(int id)

@@ -1,8 +1,6 @@
 ﻿using BookManagementAPI.Application.DTOs;
 using BookManagementAPI.Application.Services;
-using BookManagementAPI.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookManagementAPI.API.Controllers
@@ -22,6 +20,10 @@ namespace BookManagementAPI.API.Controllers
         public async Task<IActionResult> GetAll()
         {
             var category = await _categoryService.GetAllCategories();
+            if (category == null)
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
             return Ok(category);
         }
 
@@ -29,6 +31,10 @@ namespace BookManagementAPI.API.Controllers
         public async Task<IActionResult> GetByID(int id)
         {
             var category=await _categoryService.GetCategoryById(id);
+            if (category == null)
+            {
+                return NotFound($"There is no data with ID {id}");
+            }
             return Ok(category);
         }
 
@@ -39,12 +45,16 @@ namespace BookManagementAPI.API.Controllers
             {
                 return BadRequest();
             }
-            var category = new Category()
+            var categoryData = await _categoryService.CreateCategory(categoryDTO);
+            if (categoryData == -1)
             {
-                Name = categoryDTO.CategoryName,
-            };
-            var categoryData = await _categoryService.CreateCategory(category);
-            return Ok(categoryData);
+                return Conflict("The resource already exists.");
+            }
+            if (categoryData == -2)
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+            return StatusCode(201, "Category created successfully");
         }
 
         [HttpPut("{id}")]
@@ -54,24 +64,38 @@ namespace BookManagementAPI.API.Controllers
             {
                 return BadRequest();
             }
-            var category = new Category()
+            var categoryData = await _categoryService.UpdateCategory(id, categoryDTO);
+            if (categoryData == 1)
             {
-                Name = categoryDTO.CategoryName,
-            };
-            var categoryData = await _categoryService.UpdateCategory(id, category);
-            return Ok(categoryData);
+                return Ok();
+            }
+            else if (categoryData == -1)
+            {
+                return NotFound("The requested resource was not found.");
+            }
+            else
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var data=await _categoryService.DeleteCategory(id);
-            if (data != -1)
+            if (data == 1)
             {
-                return Ok("Deleted category successufully");
+                return Ok("deleted succesfully category");
             }
-            else {return BadRequest(); }
-            
+            else if (data == -1)
+            {
+                return NotFound("The requested resource was not found.");
+            }
+            else
+            {
+                return StatusCode(500, "An error occurred while processing your request.");
+            }
+
         }
     }
 }
