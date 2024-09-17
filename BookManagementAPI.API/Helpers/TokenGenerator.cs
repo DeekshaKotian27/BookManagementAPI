@@ -19,7 +19,8 @@ namespace BookManagementAPI.API.Helpers
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.Name,userData.UserName),
-                    new Claim(ClaimTypes.Email,userData.EmailID)
+                    new Claim(ClaimTypes.Email,userData.EmailID),
+                    new Claim(ClaimTypes.Role,userData.Role)
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(100),
                 Audience = jwtSettings["Audience"],

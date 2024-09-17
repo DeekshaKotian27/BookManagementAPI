@@ -1,10 +1,7 @@
 ﻿using BookManagementAPI.Application.DTOs;
 using BookManagementAPI.Application.Services;
-using BookManagementAPI.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using static System.Reflection.Metadata.BlobBuilder;
 
 namespace BookManagementAPI.API.Controllers
 {
@@ -14,14 +11,18 @@ namespace BookManagementAPI.API.Controllers
     public class PublisherController : ControllerBase
     {
         public readonly IPublisherService _publisherService;
-        public PublisherController(IPublisherService publisherService)
+        private readonly IHttpContextAccessor _contextAccessor;
+        public PublisherController(IPublisherService publisherService,IHttpContextAccessor contextAccessor)
         {
             _publisherService = publisherService;
+            _contextAccessor = contextAccessor;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
+            //using httpcontextAccesor to get the data for http request and response. Used mostly in the services and repositories.
+            var httpcontext=_contextAccessor.HttpContext;
             var publisher= await _publisherService.GetAllAsync();
             if (publisher == null)
             {

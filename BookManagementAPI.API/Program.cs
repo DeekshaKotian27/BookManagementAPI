@@ -13,7 +13,7 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler=ReferenceHandler.IgnoreCycles;
@@ -93,6 +93,7 @@ builder.Services.AddAuthentication(x =>
         ClockSkew = TimeSpan.Zero,
     };
 });
+//builder.Services.AddAuthorization()
 
 //add services to the container
 builder.Services.AddScoped<IAuthorService, AuthorService>();
