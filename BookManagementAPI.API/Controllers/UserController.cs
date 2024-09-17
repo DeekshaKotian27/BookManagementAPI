@@ -1,14 +1,8 @@
 ﻿using BookManagementAPI.API.Helpers;
 using BookManagementAPI.Application.DTOs;
 using BookManagementAPI.Application.Services;
-using BookManagementAPI.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.Data;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace BookManagementAPI.API.Controllers
 {
