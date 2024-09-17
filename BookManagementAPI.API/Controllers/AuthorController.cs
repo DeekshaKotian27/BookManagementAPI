@@ -19,6 +19,7 @@ namespace BookManagementAPI.API.Controllers
         }
 
         [HttpGet]
+        [Route("GetAllAuthor")]
         public async Task<IActionResult> GetAll()
         {
             var authors = await _authorService.GetAllAsync();
@@ -28,7 +29,9 @@ namespace BookManagementAPI.API.Controllers
             }
             return Ok(authors);
         }
-        [HttpGet("{id}")]
+        
+        [HttpGet]
+        [Route("GetAuthorByID/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var author = await _authorService.GetByIdAsync(id);
@@ -40,6 +43,7 @@ namespace BookManagementAPI.API.Controllers
         }
 
         [HttpPost]
+        [Route("CreateAuthor")]
         public async Task<IActionResult> Create(AuthorDTO authorDTO)
         {
             if (authorDTO == null)
@@ -58,7 +62,8 @@ namespace BookManagementAPI.API.Controllers
             return StatusCode(201, "Author created successfully");
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
+        [Route("UpdateAuthor/{id}")]
         public async Task<IActionResult> Update(int id,AuthorDTO authorDTO) 
         { 
             if (authorDTO == null)
@@ -77,7 +82,8 @@ namespace BookManagementAPI.API.Controllers
             return Ok("updated succesfully");
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("DeleteAuthor/{id}")]
         public async Task<IActionResult> Delete(int id) 
         {
             var author= await _authorService.DeleteAsync(id);

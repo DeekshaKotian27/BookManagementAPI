@@ -1,10 +1,7 @@
 ﻿using BookManagementAPI.Application.DTOs;
 using BookManagementAPI.Application.Services;
-using BookManagementAPI.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using static System.Reflection.Metadata.BlobBuilder;
 
 namespace BookManagementAPI.API.Controllers
 {
@@ -14,14 +11,19 @@ namespace BookManagementAPI.API.Controllers
     public class PublisherController : ControllerBase
     {
         public readonly IPublisherService _publisherService;
-        public PublisherController(IPublisherService publisherService)
+        private readonly IHttpContextAccessor _contextAccessor;
+        public PublisherController(IPublisherService publisherService,IHttpContextAccessor contextAccessor)
         {
             _publisherService = publisherService;
+            _contextAccessor = contextAccessor;
         }
 
         [HttpGet]
+        [Route("GetAllPublisher")]
         public async Task<IActionResult> GetAllAsync()
         {
+            //using httpcontextAccesor to get the data for http request and response. Used mostly in the services and repositories.
+            var httpcontext=_contextAccessor.HttpContext;
             var publisher= await _publisherService.GetAllAsync();
             if (publisher == null)
             {
@@ -30,7 +32,8 @@ namespace BookManagementAPI.API.Controllers
             return Ok(publisher);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet]
+        [Route("GetPublisherById/{id}")]
         public async Task<IActionResult> GetByIDAsync(int id)
         {
             var publisher=await _publisherService.GetPublisherById(id);
@@ -42,6 +45,7 @@ namespace BookManagementAPI.API.Controllers
         }
 
         [HttpPost]
+        [Route("CreatePublisher")]
         public async Task<IActionResult> CreateAsync(PublisherDTO publisherDTO)
         {
             if(publisherDTO==null)
@@ -60,7 +64,8 @@ namespace BookManagementAPI.API.Controllers
             return StatusCode(201, "Publisher created successfully");
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
+        [Route("UpdatePublisher/{id}")]
         public async Task<IActionResult> Update(int id, PublisherDTO publisherDTO)
         {
             if (publisherDTO == null)
@@ -82,7 +87,8 @@ namespace BookManagementAPI.API.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("DeletePublisher/{id}")]
         public async Task<IActionResult> DeletePublisher(int id)
         {
             var data=await _publisherService.DeletePublisher(id);

@@ -19,6 +19,7 @@ namespace BookManagementAPI.API.Controllers
         }
 
         [HttpGet]
+        [Route("GetAllBooks")]
         public async Task<IActionResult> GetBooks() 
         {
             var books= await _bookService.GetBooksAsync();
@@ -30,6 +31,7 @@ namespace BookManagementAPI.API.Controllers
         }
 
         [HttpPost]
+        [Route("CreateBook")]
         public async Task<IActionResult> CreateBooks(BooksDTO booksDTO)
         {
             if(booksDTO == null)
@@ -50,7 +52,8 @@ namespace BookManagementAPI.API.Controllers
             }
         }
 
-        [HttpGet("{id}")]
+        [HttpGet]
+        [Route("GetBookById/{id}")]
         public async Task<IActionResult> GetBookByID(int id)
         {
             var book=await _bookService.GetBookByIdAsync(id);
@@ -60,7 +63,8 @@ namespace BookManagementAPI.API.Controllers
             return Ok(book);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
+        [Route("UpdateBook/{id}")]
         public async Task<IActionResult> UpdateBook(int id, BooksDTO booksDTO)
         {
             if(booksDTO == null)
@@ -81,7 +85,8 @@ namespace BookManagementAPI.API.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("DeleteBook/{id}")]
         public async Task<IActionResult> DeleteBook(int id)
         {
             var data = await _bookService.DeleteBooksAsync(id);
