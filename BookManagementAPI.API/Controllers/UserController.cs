@@ -38,6 +38,7 @@ namespace BookManagementAPI.API.Controllers
             }
             return BadRequest();
         }
+        
         [HttpPost("validate")]
         public async Task<IActionResult> Validate([FromBody] UsersDTO usersDTO)
         {
@@ -173,6 +174,7 @@ namespace BookManagementAPI.API.Controllers
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
+        
         [HttpPut]
         [Route("AdminUpdateUser/{id}")]
         [Authorize]

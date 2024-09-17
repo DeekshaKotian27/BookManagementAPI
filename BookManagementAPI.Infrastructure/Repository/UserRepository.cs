@@ -116,7 +116,7 @@ namespace BookManagementAPI.Infrastructure.Repository
                 }
                 else return -3;
             }
-            return -2;//incorrect current password
+            return -2;
         }
 
         public async Task<Users> Validate(string emailID)

@@ -17,6 +17,7 @@ namespace BookManagementAPI.API.Controllers
         }
 
         [HttpGet]
+        [Route("GetAllCategory")]
         public async Task<IActionResult> GetAll()
         {
             var category = await _categoryService.GetAllCategories();
@@ -27,7 +28,8 @@ namespace BookManagementAPI.API.Controllers
             return Ok(category);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet]
+        [Route("GetCategoryByID/{id}")]
         public async Task<IActionResult> GetByID(int id)
         {
             var category=await _categoryService.GetCategoryById(id);
@@ -39,6 +41,7 @@ namespace BookManagementAPI.API.Controllers
         }
 
         [HttpPost]
+        [Route("CreateCategory")]
         public async Task<IActionResult> CreateAsync(CategoryDTO categoryDTO)
         {
             if (categoryDTO == null)
@@ -57,7 +60,8 @@ namespace BookManagementAPI.API.Controllers
             return StatusCode(201, "Category created successfully");
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
+        [Route("UpdateCategory/{id}")]
         public async Task<IActionResult> UpdateByID(int id,CategoryDTO categoryDTO)
         {
             if(categoryDTO == null)
@@ -79,7 +83,8 @@ namespace BookManagementAPI.API.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("DeleteCategory/{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var data=await _categoryService.DeleteCategory(id);
